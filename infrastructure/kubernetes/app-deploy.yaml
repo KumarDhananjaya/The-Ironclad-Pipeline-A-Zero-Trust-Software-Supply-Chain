@@ -16,6 +16,7 @@ spec:
       containers:
       - name: ironclad-app
         image: ironclad/demo-app:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         envFrom:
