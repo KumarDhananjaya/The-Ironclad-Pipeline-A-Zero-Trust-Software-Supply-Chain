@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ironclad-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ironclad-app
+  template:
+    metadata:
+      labels:
+        app: ironclad-app
+    spec:
+      containers:
+      - name: ironclad-app
+        image: ironclad/demo-app:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: app-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ironclad-app-service
+  namespace: default
+spec:
+  selector:
+    app: ironclad-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

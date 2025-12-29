@@ -1,0 +1,44 @@
+---
+- name: Harden Kubernetes Nodes
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Ensure sysctl parameters are set for security
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      with_items:
+        - { key: 'net.ipv4.conf.all.accept_redirects', value: '0' }
+        - { key: 'net.ipv4.conf.all.send_redirects', value: '0' }
+        - { key: 'net.ipv4.tcp_syncookies', value: '1' }
+        - { key: 'net.ipv4.conf.all.rp_filter', value: '1' }
+
+    - name: Install security-related packages
+      package:
+        name:
+          - ufw
+          - fail2ban
+          - auditd
+        state: present
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Allow Kubernetes API port
+      ufw:
+        rule: allow
+        port: 6443
+        proto: tcp
+
+    - name: Allow HTTP/HTTPS ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      with_items:
+        - 80
+        - 443

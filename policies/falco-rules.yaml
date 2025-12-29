@@ -1,0 +1,7 @@
+- rule: Terminal shell in container
+  desc: A shell was used as the entrypoint/process in a container.
+  condition: container.id != host and proc.name = bash and container.image.repository startswith ironclad/
+  output: >
+    Terminal shell spawned in container (user=%user.name container_id=%container.id image=%container.image.repository shell=%proc.name)
+  priority: WARNING
+  tags: [container, shell, mitre_execution]
